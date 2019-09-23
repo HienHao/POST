@@ -124,468 +124,249 @@ async function getCommentPost(page, countComment) {
       'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
       value => value.innerHTML.split("/")[1]
     );
-    if (countComment > totalComments) {
-      return "Khong du comment";
-    } else {
-      if ((await page.$("div[class='permalinkPost']")) != null) {
-        // Click more comments and reply
-        let moreComments = async () => {
-          let amountComment = await page.$eval(
-            'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
-            value => value.innerHTML.split("/")[0]
-          );
-          if (countComment > amountComment) {
-            try {
+    if (totalComments.length > 3) {
+      let convertAboutOneThousandComment = totalComments.split(/\./g);
+      let amountCommentConvert = parseInt(convertAboutOneThousandComment[0].concat(convertAboutOneThousandComment[1]));
+      if (countComment > amountCommentConvert) {
+        return "Khong du comment";
+
+      } else {
+        if ((await page.$("div[class='permalinkPost']")) != null) {
+          // Click more comments and reply
+          let moreComments = async () => {
+            let amountComment = await page.$eval(
+              'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
+              value => value.innerHTML.split("/")[0]
+            );
+            // click more comment
+            if (countComment > amountComment) {
+              
+              try {
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
+              } catch (err) {
+                //if err run again
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
+              }
+              //if more cmt or reply is still exist
+              if (await page.$('div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]') != null) {
+                try {
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                } catch (err) {
+                  //if err run again
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                }
+              }
+  
               if (
                 (await page.$(
                   "div[class='permalinkPost'] a[class='_4sxc _42ft']"
                 )) != null
               ) {
-                await page.waitForSelector(
-                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-                );
-                await page.click(
-                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-                );
+                await moreComments();
+              }
+            }
+          };
+          await moreComments();
+          await page.waitFor(1000);
+          //Get comments and reply
+          let data = await getCommentOfPostPage(page);
+          return data;
+        }
+        //if author is user
+        else {
+          let moreComments = async () => {
+            try {
+              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
+                await page.waitForSelector("a[class='_4sxc _42ft']");
+                await page.click("a[class='_4sxc _42ft']");
                 await moreComments();
               }
             } catch (err) {
-              //if err run again
+              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
+                await page.waitForSelector("a[class='_4sxc _42ft']");
+                await page.click("a[class='_4sxc _42ft']");
+                await moreComments();
+              }
+            }
+            if ((await page.$("a[class='_4sxc _42ft']")) != null) {
+              await moreComments();
+            }
+          };
+          await moreComments();
+          await page.waitFor(1000);
+          //Get comments and reply
+          let data = await getCommentOfPostUser(page);
+          return data;
+        }
+      }
+    } else {
+      if (countComment > totalComments) {
+        
+        return "Khong du comment";
+      } else {
+        if ((await page.$("div[class='permalinkPost']")) != null) {
+          // Click more comments and reply
+          let moreComments = async () => {
+            let amountComment = await page.$eval(
+              'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
+              value => value.innerHTML.split("/")[0]
+            );
+            // click more comment
+            if (countComment > amountComment) {
+              
+              try {
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
+              } catch (err) {
+                //if err run again
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
+              }
+              //if more cmt or reply is still exist
+              if (await page.$('div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]') != null) {
+                try {
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                } catch (err) {
+                  //if err run again
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                }
+              }
+
               if (
                 (await page.$(
                   "div[class='permalinkPost'] a[class='_4sxc _42ft']"
                 )) != null
               ) {
-                await page.waitForSelector(
-                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-                );
-                await page.click(
-                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-                );
                 await moreComments();
               }
             }
-            //if more cmt or reply is still exist
-            if (
-              (await page.$(
-                "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-              )) != null
-            ) {
-              await moreComments();
-            }
-          }
-        };
-        await moreComments();
-        await page.waitFor(1000);
-        //Get comments and reply
-        let data = await page.evaluate(() => {
-          let comment = [];
-          let i = 1;
-          while (
-            document.querySelector(
-              "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                i +
-                ")"
-            ) != null
-          ) {
-            let cmtText;
-            let cmtVideo;
-            let cmtImage;
-            let cmtSticker;
-            let reply = [];
-            let cmtUser = document.querySelector(
-              "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                i +
-                ") div[class='_72vr']>a"
-            ).innerText;
-            if (
-              document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") video[class='_ox1']"
-              ) != null
-            ) {
-              cmtVideo = document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") video[class='_ox1']"
-              ).attributes["src"].value;
-            }
-            if (
-              document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") span[class='_3l3x']"
-              ) != null
-            ) {
-              cmtText = document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") span[class='_3l3x']"
-              ).innerText;
-            }
-            if (
-              document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") div[class='_6cuy']>div>div"
-              ).attributes["style"] != null
-            ) {
-              cmtStickerString = document
-                .querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ") div[class='_6cuy']>div>div"
-                )
-                .attributes["style"].value.split('"');
-              cmtSticker = cmtStickerString[1];
-            }
-            if (
-              document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") img[class='img']"
-              ) != null
-            ) {
-              cmtImage = document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") img[class='img']"
-              ).attributes["src"].value;
-            }
-            //get reply
-            if (
-              document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ")>div:nth-child(2)>ul"
-              ) != null
-            ) {
-              let j = 1;
-              while (
-                document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ")"
-                ) != null
-              ) {
-                let replyText;
-                let replyVideo;
-                let replyImage;
-                let replySticker;
-                let replyUser = document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") div[class='_72vr']>a"
-                ).innerText;
-                if (
-                  document.querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") video[class='_ox1']"
-                  ) != null
-                ) {
-                  replyVideo = document.querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") video[class='_ox1']"
-                  ).attributes["src"].value;
-                }
-                if (
-                  document.querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") span[class='_3l3x']"
-                  ) != null
-                ) {
-                  replyText = document.querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") span[class='_3l3x']"
-                  ).innerText;
-                }
-                if (
-                  document.querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") div[class='_6cuy']>div>div"
-                  ).attributes["style"] != null
-                ) {
-                  replyStickerString = document
-                    .querySelector(
-                      "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                        i +
-                        ")>div:nth-child(2)>ul>li:nth-child(" +
-                        j +
-                        ") div[class='_6cuy']>div>div"
-                    )
-                    .attributes["style"].value.split('"');
-                  replySticker = replyStickerString[1];
-                }
-                if (
-                  document.querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") img[class='img']"
-                  ) != null
-                ) {
-                  cmtImage = document.querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") img[class='img']"
-                  ).attributes["src"].value;
-                }
-                j++;
-                reply.push({
-                  replyUser,
-                  replyText,
-                  replyVideo,
-                  replyImage,
-                  replySticker
-                });
+          };
+          await moreComments();
+          await page.waitFor(1000);
+          //Get comments and reply
+          let data = await getCommentOfPostPage(page);
+          return data;
+        }
+        //if author is user
+        else {
+          let moreComments = async () => {
+            try {
+              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
+                await page.waitForSelector("a[class='_4sxc _42ft']");
+                await page.click("a[class='_4sxc _42ft']");
+                await moreComments();
+              }
+            } catch (err) {
+              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
+                await page.waitForSelector("a[class='_4sxc _42ft']");
+                await page.click("a[class='_4sxc _42ft']");
+                await moreComments();
               }
             }
-
-            i++;
-            comment.push({
-              cmtUser,
-              cmtText,
-              cmtVideo,
-              cmtImage,
-              cmtSticker,
-              reply
-            });
-          }
-
-          return comment;
-        });
-        return data;
-      }
-      //if author is user
-      else {
-        let moreComments = async () => {
-          try {
             if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-              await page.waitForSelector("a[class='_4sxc _42ft']");
-              await page.click("a[class='_4sxc _42ft']");
               await moreComments();
             }
-          } catch (err) {
-            if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-              await page.waitForSelector("a[class='_4sxc _42ft']");
-              await page.click("a[class='_4sxc _42ft']");
-              await moreComments();
-            }
-          }
-          if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-            await moreComments();
-          }
-        };
-        await moreComments();
-        await page.waitFor(1000);
-        //Get comments and reply
-        let data = await page.evaluate(() => {
-          let comment = [];
-          let i = 1;
-
-          while (
-            document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ")"
-            ) != null
-          ) {
-            let cmtText;
-            let cmtVideo;
-            let cmtImage;
-            let cmtSticker;
-            let reply = [];
-            let cmtUser = document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ") div[class='_72vr']>a"
-            ).innerText;
-            if (
-              document.querySelector(
-                "ul[class='_7791']>li:nth-child(" + i + ") video[class='_ox1']"
-              ) != null
-            ) {
-              cmtVideo = document.querySelector(
-                "ul[class='_7791']>li:nth-child(" + i + ") video[class='_ox1']"
-              ).attributes["src"].value;
-            }
-            if (
-              document.querySelector(
-                "ul[class='_7791']>li:nth-child(" + i + ") span[class='_3l3x']"
-              ) != null
-            ) {
-              cmtText = document.querySelector(
-                "ul[class='_7791']>li:nth-child(" + i + ") span[class='_3l3x']"
-              ).innerText;
-            }
-            if (
-              document.querySelector(
-                "ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ") div[class='_6cuy']>div>div"
-              ).attributes["style"] != null
-            ) {
-              cmtStickerString = document
-                .querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ") div[class='_6cuy']>div>div"
-                )
-                .attributes["style"].value.split('"');
-              cmtSticker = cmtStickerString[1];
-            }
-            if (
-              document.querySelector(
-                "ul[class='_7791']>li:nth-child(" + i + ") img[class='img']"
-              ) != null
-            ) {
-              cmtImage = document.querySelector(
-                "ul[class='_7791']>li:nth-child(" + i + ") img[class='img']"
-              ).attributes["src"].value;
-            }
-
-            //get reply
-            if (
-              document.querySelector(
-                "ul[class='_7791']>li:nth-child(" + i + ")>div:nth-child(2)>ul"
-              ) != null
-            ) {
-              let j = 1;
-              while (
-                document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ")"
-                ) != null
-              ) {
-                let replyText;
-                let replyVideo;
-                let replyImage;
-                let replySticker;
-                let replyUser = document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") div[class='_72vr']>a"
-                ).innerText;
-                if (
-                  document.querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") video[class='_ox1']"
-                  ) != null
-                ) {
-                  replyVideo = document.querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") video[class='_ox1']"
-                  ).attributes["src"].value;
-                }
-                if (
-                  document.querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") span[class='_3l3x']"
-                  ) != null
-                ) {
-                  replyText = document.querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") span[class='_3l3x']"
-                  ).innerText;
-                }
-                if (
-                  document.querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") div[class='_6cuy']>div>div"
-                  ).attributes["style"] != null
-                ) {
-                  replyStickerString = document
-                    .querySelector(
-                      "ul[class='_7791']>li:nth-child(" +
-                        i +
-                        ")>div:nth-child(2)>ul>li:nth-child(" +
-                        j +
-                        ") div[class='_6cuy']>div>div"
-                    )
-                    .attributes["style"].value.split('"');
-                  replySticker = replyStickerString[1];
-                }
-                if (
-                  document.querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") img[class='img']"
-                  ) != null
-                ) {
-                  replyImage = document.querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") img[class='img']"
-                  ).attributes["src"].value;
-                }
-                j++;
-                reply.push({
-                  replyUser,
-                  replyText,
-                  replyVideo,
-                  replyImage,
-                  replySticker
-                });
-              }
-            }
-
-            i++;
-            comment.push({
-              cmtUser,
-              cmtText,
-              cmtVideo,
-              cmtImage,
-              cmtSticker,
-              reply
-            });
-          }
-
-          return comment;
-        });
-        return data;
+          };
+          await moreComments();
+          await page.waitFor(1000);
+          //Get comments and reply
+          let data = await getCommentOfPostUser(page);
+          return data;
+        }
       }
     }
   }
@@ -1079,7 +860,7 @@ async function clickAllCommentOfPage(page) {
 }
 
 async function main() {
-  const url = "https://facebook.com/3027612860587989";
+  const url = "https://facebook.com/3097104883638786";
   const cookie =
     "sb=0wgsXfkaEA0i3FoP-cg2hXbk; datr=0wgsXTcwojtEAmRmSDOZCQHY; locale=vi_VN; c_user=100006889479532; xs=27%3AIyjRtMMbjZa0aA%3A2%3A1567870759%3A19246%3A6315; spin=r.1001148861_b.trunk_t.1567870760_s.1_v.2_; fr=0wgfiGjUbt8gWeusU.AWUBmPDHZVZ6VtQNb6i0Yz-0TRY.BdLAHq.BH.AAA.0.0.BddF_G.AWWl19Je; act=1567908567675%2F6; wd=1749x491; presence=EDvF3EtimeF1567908716EuserFA21B06889479532A2EstateFDt3F_5b_5dEutc3F1567873281567G567908716396CEchFDp_5f1B06889479532F1CC";
   const browser = await puppeteer.launch({ headless: false });
@@ -1104,7 +885,7 @@ async function main() {
 
   // await clickCommentPost(page);
   await page.waitFor(500);
-  await getCommentPost(page, 100)
+  await getCommentPost(page, 150)
     .then(data => {
       console.log(data);
     })
