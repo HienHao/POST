@@ -112,12 +112,11 @@ async function getImagesPost(page) {
   await page.keyboard.down("Escape");
   await page.keyboard.up("Escape");
   return images;
-};
+}
 
 async function getCommentPost(page, countComment) {
-  
   await clickAllCommentOfPage(page);
-  await page.waitFor( 2000 );
+  await page.waitFor(2000);
   //if post have amount comment end post
 
   if (await page.$('div[class="permalinkPost"] span[class="_3bu3 _293g"]')) {
@@ -364,7 +363,7 @@ async function getCommentPost(page, countComment) {
                 });
               }
             }
-  
+
             i++;
             comment.push({
               cmtUser,
@@ -375,7 +374,7 @@ async function getCommentPost(page, countComment) {
               reply
             });
           }
-  
+
           return comment;
         });
         return data;
@@ -406,10 +405,11 @@ async function getCommentPost(page, countComment) {
         let data = await page.evaluate(() => {
           let comment = [];
           let i = 1;
-  
+
           while (
-            document.querySelector("ul[class='_7791']>li:nth-child(" + i + ")") !=
-            null
+            document.querySelector(
+              "ul[class='_7791']>li:nth-child(" + i + ")"
+            ) != null
           ) {
             let cmtText;
             let cmtVideo;
@@ -462,7 +462,7 @@ async function getCommentPost(page, countComment) {
                 "ul[class='_7791']>li:nth-child(" + i + ") img[class='img']"
               ).attributes["src"].value;
             }
-  
+
             //get reply
             if (
               document.querySelector(
@@ -571,7 +571,7 @@ async function getCommentPost(page, countComment) {
                 });
               }
             }
-  
+
             i++;
             comment.push({
               cmtUser,
@@ -582,103 +582,228 @@ async function getCommentPost(page, countComment) {
               reply
             });
           }
-  
+
           return comment;
         });
         return data;
       }
     }
-    }
- // if post haven't amount commnet and post
-  if (await page.$('div[class="permalinkPost"] span[class="_3bu3 _293g"]') == null) {
+  }
+  // if post haven't amount commnet and post
+  if (
+    (await page.$('div[class="permalinkPost"] span[class="_3bu3 _293g"]')) ==
+    null
+  ) {
     let totalComments = await page.$eval(
       'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
       value => value.innerHTML.split("/")[1]
     );
+
     if (countComment > totalComments) {
       return "Khong du comment";
     } else {
-    if ((await page.$("div[class='permalinkPost']")) != null) {
-      // Click more comments and reply
-      let moreComments = async () => {
-        let amountComment = await page.$eval(
-          'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
-          value => value.innerHTML.split("/")[0]
-        );
-        if (countComment > amountComment) {
-          try {
+      if ((await page.$("div[class='permalinkPost']")) != null) {
+        // Click more comments and reply
+        let moreComments = async () => {
+          let amountComment = await page.$eval(
+            'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
+            value => value.innerHTML.split("/")[0]
+          );
+          if (countComment > amountComment) {
+            //click more comment
+            try {
+              if (
+                (await page.$(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                )) != null
+              ) {
+                await page.waitForSelector(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                );
+                await page.click(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                );
+                await moreComments();
+              }
+            } catch (err) {
+              //if err run again
+              if (
+                (await page.$(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                )) != null
+              ) {
+                await page.waitForSelector(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                );
+                await page.click(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                );
+                await moreComments();
+              }
+            }
+            //if more cmt or reply is still exist
             if (
               (await page.$(
                 "div[class='permalinkPost'] a[class='_4sxc _42ft']"
               )) != null
             ) {
-              await page.waitForSelector(
-                "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-              );
-              await page.click(
-                "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-              );
+              await moreComments();
+            }
+          }
+        };
+        await moreComments();
+        await page.waitFor(1000);
+        // get data comment
+        let data = await getCommentOfPostPage(page);
+        return data;
+      }
+      //if author is user
+      else {
+        let moreComments = async () => {
+          //click more comment
+          try {
+            if ((await page.$("a[class='_4sxc _42ft']")) != null) {
+              await page.waitForSelector("a[class='_4sxc _42ft']");
+              await page.click("a[class='_4sxc _42ft']");
               await moreComments();
             }
           } catch (err) {
-            //if err run again
-            if (
-              (await page.$(
-                "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-              )) != null
-            ) {
-              await page.waitForSelector(
-                "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-              );
-              await page.click(
-                "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-              );
+            if ((await page.$("a[class='_4sxc _42ft']")) != null) {
+              await page.waitForSelector("a[class='_4sxc _42ft']");
+              await page.click("a[class='_4sxc _42ft']");
               await moreComments();
             }
           }
-          //if more cmt or reply is still exist
-          if (
-            (await page.$(
-              "div[class='permalinkPost'] a[class='_4sxc _42ft']"
-            )) != null
-          ) {
+          if ((await page.$("a[class='_4sxc _42ft']")) != null) {
             await moreComments();
           }
-        }
-      };
-      await moreComments();
-      await page.waitFor(1000);
-      //Get comments and reply
-      let data = await page.evaluate(() => {
-        let comment = [];
-        let i = 1;
+        };
+        await moreComments();
+        await page.waitFor(1000);
+        // get data comment
+        let data = await getCommentOfPostUser(page);
+        return data;
+      }
+    }
+  }
+}
+async function getCommentOfPostPage(page) {
+  let data = await page.evaluate(() => {
+    let comment = [];
+    let i = 1;
+    while (
+      document.querySelector(
+        "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" + i + ")"
+      ) != null
+    ) {
+      let cmtText;
+      let cmtVideo;
+      let cmtImage;
+      let cmtSticker;
+      let reply = [];
+      let cmtUser = document.querySelector(
+        "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+          i +
+          ") div[class='_72vr']>a"
+      ).innerText;
+      if (
+        document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ") video[class='_ox1']"
+        ) != null
+      ) {
+        cmtVideo = document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ") video[class='_ox1']"
+        ).attributes["src"].value;
+      }
+      if (
+        document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ") span[class='_3l3x']"
+        ) != null
+      ) {
+        cmtText = document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ") span[class='_3l3x']"
+        ).innerText;
+      }
+      if (
+        document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ") div[class='_6cuy']>div>div"
+        ).attributes["style"] != null
+      ) {
+        cmtStickerString = document
+          .querySelector(
+            "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+              i +
+              ") div[class='_6cuy']>div>div"
+          )
+          .attributes["style"].value.split('"');
+        cmtSticker = cmtStickerString[1];
+      }
+      if (
+        document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ") img[class='img']"
+        ) != null
+      ) {
+        cmtImage = document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ") img[class='img']"
+        ).attributes["src"].value;
+      }
+      //get reply
+      if (
+        document.querySelector(
+          "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+            i +
+            ")>div:nth-child(2)>ul"
+        ) != null
+      ) {
+        let j = 1;
         while (
           document.querySelector(
             "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
               i +
+              ")>div:nth-child(2)>ul>li:nth-child(" +
+              j +
               ")"
           ) != null
         ) {
-          let cmtText;
-          let cmtVideo;
-          let cmtImage;
-          let cmtSticker;
-          let reply = [];
-          let cmtUser = document.querySelector(
+          let replyText;
+          let replyVideo;
+          let replyImage;
+          let replySticker;
+          let replyUser = document.querySelector(
             "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
               i +
+              ")>div:nth-child(2)>ul>li:nth-child(" +
+              j +
               ") div[class='_72vr']>a"
           ).innerText;
           if (
             document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") video[class='_ox1']"
             ) != null
           ) {
-            cmtVideo = document.querySelector(
+            replyVideo = document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") video[class='_ox1']"
             ).attributes["src"].value;
           }
@@ -686,12 +811,16 @@ async function getCommentPost(page, countComment) {
             document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") span[class='_3l3x']"
             ) != null
           ) {
-            cmtText = document.querySelector(
+            replyText = document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") span[class='_3l3x']"
             ).innerText;
           }
@@ -699,374 +828,255 @@ async function getCommentPost(page, countComment) {
             document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") div[class='_6cuy']>div>div"
             ).attributes["style"] != null
           ) {
-            cmtStickerString = document
+            replyStickerString = document
               .querySelector(
                 "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                   i +
+                  ")>div:nth-child(2)>ul>li:nth-child(" +
+                  j +
                   ") div[class='_6cuy']>div>div"
               )
               .attributes["style"].value.split('"');
-            cmtSticker = cmtStickerString[1];
+            replySticker = replyStickerString[1];
           }
           if (
             document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") img[class='img']"
             ) != null
           ) {
             cmtImage = document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") img[class='img']"
             ).attributes["src"].value;
           }
-          //get reply
-          if (
-            document.querySelector(
-              "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                i +
-                ")>div:nth-child(2)>ul"
-            ) != null
-          ) {
-            let j = 1;
-            while (
-              document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ")>div:nth-child(2)>ul>li:nth-child(" +
-                  j +
-                  ")"
-              ) != null
-            ) {
-              let replyText;
-              let replyVideo;
-              let replyImage;
-              let replySticker;
-              let replyUser = document.querySelector(
-                "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ")>div:nth-child(2)>ul>li:nth-child(" +
-                  j +
-                  ") div[class='_72vr']>a"
-              ).innerText;
-              if (
-                document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") video[class='_ox1']"
-                ) != null
-              ) {
-                replyVideo = document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") video[class='_ox1']"
-                ).attributes["src"].value;
-              }
-              if (
-                document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") span[class='_3l3x']"
-                ) != null
-              ) {
-                replyText = document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") span[class='_3l3x']"
-                ).innerText;
-              }
-              if (
-                document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") div[class='_6cuy']>div>div"
-                ).attributes["style"] != null
-              ) {
-                replyStickerString = document
-                  .querySelector(
-                    "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") div[class='_6cuy']>div>div"
-                  )
-                  .attributes["style"].value.split('"');
-                replySticker = replyStickerString[1];
-              }
-              if (
-                document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") img[class='img']"
-                ) != null
-              ) {
-                cmtImage = document.querySelector(
-                  "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") img[class='img']"
-                ).attributes["src"].value;
-              }
-              j++;
-              reply.push({
-                replyUser,
-                replyText,
-                replyVideo,
-                replyImage,
-                replySticker
-              });
-            }
-          }
-
-          i++;
-          comment.push({
-            cmtUser,
-            cmtText,
-            cmtVideo,
-            cmtImage,
-            cmtSticker,
-            reply
+          j++;
+          reply.push({
+            replyUser,
+            replyText,
+            replyVideo,
+            replyImage,
+            replySticker
           });
         }
+      }
 
-        return comment;
+      i++;
+      comment.push({
+        cmtUser,
+        cmtText,
+        cmtVideo,
+        cmtImage,
+        cmtSticker,
+        reply
       });
-      return data;
     }
-    //if author is user
-    else {
-      let moreComments = async () => {
-        try {
-          if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-            await page.waitForSelector("a[class='_4sxc _42ft']");
-            await page.click("a[class='_4sxc _42ft']");
-            await moreComments();
-          }
-        } catch (err) {
-          if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-            await page.waitForSelector("a[class='_4sxc _42ft']");
-            await page.click("a[class='_4sxc _42ft']");
-            await moreComments();
-          }
-        }
-        if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-          await moreComments();
-        }
-      };
-      await moreComments();
-      await page.waitFor(1000);
-      //Get comments and reply
-      let data = await page.evaluate(() => {
-        let comment = [];
-        let i = 1;
 
+    return comment;
+  });
+  return data;
+}
+
+async function getCommentOfPostUser(page) {
+  let data = await page.evaluate(() => {
+    let comment = [];
+    let i = 1;
+
+    while (
+      document.querySelector("ul[class='_7791']>li:nth-child(" + i + ")") !=
+      null
+    ) {
+      let cmtText;
+      let cmtVideo;
+      let cmtImage;
+      let cmtSticker;
+      let reply = [];
+      let cmtUser = document.querySelector(
+        "ul[class='_7791']>li:nth-child(" + i + ") div[class='_72vr']>a"
+      ).innerText;
+      if (
+        document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ") video[class='_ox1']"
+        ) != null
+      ) {
+        cmtVideo = document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ") video[class='_ox1']"
+        ).attributes["src"].value;
+      }
+      if (
+        document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ") span[class='_3l3x']"
+        ) != null
+      ) {
+        cmtText = document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ") span[class='_3l3x']"
+        ).innerText;
+      }
+      if (
+        document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ") div[class='_6cuy']>div>div"
+        ).attributes["style"] != null
+      ) {
+        cmtStickerString = document
+          .querySelector(
+            "ul[class='_7791']>li:nth-child(" +
+              i +
+              ") div[class='_6cuy']>div>div"
+          )
+          .attributes["style"].value.split('"');
+        cmtSticker = cmtStickerString[1];
+      }
+      if (
+        document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ") img[class='img']"
+        ) != null
+      ) {
+        cmtImage = document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ") img[class='img']"
+        ).attributes["src"].value;
+      }
+
+      //get reply
+      if (
+        document.querySelector(
+          "ul[class='_7791']>li:nth-child(" + i + ")>div:nth-child(2)>ul"
+        ) != null
+      ) {
+        let j = 1;
         while (
-          document.querySelector("ul[class='_7791']>li:nth-child(" + i + ")") !=
-          null
+          document.querySelector(
+            "ul[class='_7791']>li:nth-child(" +
+              i +
+              ")>div:nth-child(2)>ul>li:nth-child(" +
+              j +
+              ")"
+          ) != null
         ) {
-          let cmtText;
-          let cmtVideo;
-          let cmtImage;
-          let cmtSticker;
-          let reply = [];
-          let cmtUser = document.querySelector(
-            "ul[class='_7791']>li:nth-child(" + i + ") div[class='_72vr']>a"
+          let replyText;
+          let replyVideo;
+          let replyImage;
+          let replySticker;
+          let replyUser = document.querySelector(
+            "ul[class='_7791']>li:nth-child(" +
+              i +
+              ")>div:nth-child(2)>ul>li:nth-child(" +
+              j +
+              ") div[class='_72vr']>a"
           ).innerText;
           if (
             document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ") video[class='_ox1']"
+              "ul[class='_7791']>li:nth-child(" +
+                i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
+                ") video[class='_ox1']"
             ) != null
           ) {
-            cmtVideo = document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ") video[class='_ox1']"
+            replyVideo = document.querySelector(
+              "ul[class='_7791']>li:nth-child(" +
+                i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
+                ") video[class='_ox1']"
             ).attributes["src"].value;
           }
           if (
             document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ") span[class='_3l3x']"
+              "ul[class='_7791']>li:nth-child(" +
+                i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
+                ") span[class='_3l3x']"
             ) != null
           ) {
-            cmtText = document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ") span[class='_3l3x']"
+            replyText = document.querySelector(
+              "ul[class='_7791']>li:nth-child(" +
+                i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
+                ") span[class='_3l3x']"
             ).innerText;
           }
           if (
             document.querySelector(
               "ul[class='_7791']>li:nth-child(" +
                 i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
                 ") div[class='_6cuy']>div>div"
             ).attributes["style"] != null
           ) {
-            cmtStickerString = document
+            replyStickerString = document
               .querySelector(
                 "ul[class='_7791']>li:nth-child(" +
                   i +
+                  ")>div:nth-child(2)>ul>li:nth-child(" +
+                  j +
                   ") div[class='_6cuy']>div>div"
               )
               .attributes["style"].value.split('"');
-            cmtSticker = cmtStickerString[1];
+            replySticker = replyStickerString[1];
           }
           if (
             document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ") img[class='img']"
+              "ul[class='_7791']>li:nth-child(" +
+                i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
+                ") img[class='img']"
             ) != null
           ) {
-            cmtImage = document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ") img[class='img']"
+            replyImage = document.querySelector(
+              "ul[class='_7791']>li:nth-child(" +
+                i +
+                ")>div:nth-child(2)>ul>li:nth-child(" +
+                j +
+                ") img[class='img']"
             ).attributes["src"].value;
           }
-
-          //get reply
-          if (
-            document.querySelector(
-              "ul[class='_7791']>li:nth-child(" + i + ")>div:nth-child(2)>ul"
-            ) != null
-          ) {
-            let j = 1;
-            while (
-              document.querySelector(
-                "ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ")>div:nth-child(2)>ul>li:nth-child(" +
-                  j +
-                  ")"
-              ) != null
-            ) {
-              let replyText;
-              let replyVideo;
-              let replyImage;
-              let replySticker;
-              let replyUser = document.querySelector(
-                "ul[class='_7791']>li:nth-child(" +
-                  i +
-                  ")>div:nth-child(2)>ul>li:nth-child(" +
-                  j +
-                  ") div[class='_72vr']>a"
-              ).innerText;
-              if (
-                document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") video[class='_ox1']"
-                ) != null
-              ) {
-                replyVideo = document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") video[class='_ox1']"
-                ).attributes["src"].value;
-              }
-              if (
-                document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") span[class='_3l3x']"
-                ) != null
-              ) {
-                replyText = document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") span[class='_3l3x']"
-                ).innerText;
-              }
-              if (
-                document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") div[class='_6cuy']>div>div"
-                ).attributes["style"] != null
-              ) {
-                replyStickerString = document
-                  .querySelector(
-                    "ul[class='_7791']>li:nth-child(" +
-                      i +
-                      ")>div:nth-child(2)>ul>li:nth-child(" +
-                      j +
-                      ") div[class='_6cuy']>div>div"
-                  )
-                  .attributes["style"].value.split('"');
-                replySticker = replyStickerString[1];
-              }
-              if (
-                document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") img[class='img']"
-                ) != null
-              ) {
-                replyImage = document.querySelector(
-                  "ul[class='_7791']>li:nth-child(" +
-                    i +
-                    ")>div:nth-child(2)>ul>li:nth-child(" +
-                    j +
-                    ") img[class='img']"
-                ).attributes["src"].value;
-              }
-              j++;
-              reply.push({
-                replyUser,
-                replyText,
-                replyVideo,
-                replyImage,
-                replySticker
-              });
-            }
-          }
-
-          i++;
-          comment.push({
-            cmtUser,
-            cmtText,
-            cmtVideo,
-            cmtImage,
-            cmtSticker,
-            reply
+          j++;
+          reply.push({
+            replyUser,
+            replyText,
+            replyVideo,
+            replyImage,
+            replySticker
           });
         }
+      }
 
-        return comment;
+      i++;
+      comment.push({
+        cmtUser,
+        cmtText,
+        cmtVideo,
+        cmtImage,
+        cmtSticker,
+        reply
       });
-      return data;
     }
-    }
-  }
-};
 
+    return comment;
+  });
+  return data;
+}
 async function clickAllCommentOfPage(page) {
   await page.$('div[data-testid="UFI2ViewOptionsSelector/root"] a');
   await page.click('div[data-testid="UFI2ViewOptionsSelector/root"] a');
   let clickAllCommnetOfPage = await page.$$('div[class="_54ng"] ul li');
   clickAllCommnetOfPage[2].click();
-};
+}
 
 async function main() {
   const url = "https://facebook.com/3027612860587989";
