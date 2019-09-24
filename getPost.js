@@ -125,12 +125,16 @@ async function getCommentPost(page, countComment) {
       value => value.innerHTML.split("/")[1]
     );
     if (totalComments.length > 3) {
-      let convertAboutOneThousandComment = totalComments.split(/\./g);
-      let amountCommentConvert = parseInt(convertAboutOneThousandComment[0].concat(convertAboutOneThousandComment[1]));
+      let convertAroundOneThousandComment = totalComments.split(/\./g);
+      let amountCommentConvert = parseInt(
+        convertAroundOneThousandComment[0].concat(
+          convertAroundOneThousandComment[1]
+        )
+      );
       if (countComment > amountCommentConvert) {
         return "Khong du comment";
-
       } else {
+        // if page post
         if ((await page.$("div[class='permalinkPost']")) != null) {
           // Click more comments and reply
           let moreComments = async () => {
@@ -140,7 +144,6 @@ async function getCommentPost(page, countComment) {
             );
             // click more comment
             if (countComment > amountComment) {
-              
               try {
                 if (
                   (await page.$(
@@ -172,7 +175,21 @@ async function getCommentPost(page, countComment) {
                 }
               }
               //if more cmt or reply is still exist
-              if (await page.$('div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]') != null) {
+              if (
+                (await page.$(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                )) != null
+              ) {
+                await moreComments();
+              }
+            }
+
+            if (countComment == amountComment) {
+              if (
+                (await page.$(
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                )) != null
+              ) {
                 try {
                   if (
                     (await page.$(
@@ -204,16 +221,16 @@ async function getCommentPost(page, countComment) {
                   }
                 }
               }
-  
               if (
                 (await page.$(
-                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
                 )) != null
               ) {
                 await moreComments();
               }
             }
           };
+
           await moreComments();
           await page.waitFor(1000);
           //Get comments and reply
@@ -223,23 +240,99 @@ async function getCommentPost(page, countComment) {
         //if author is user
         else {
           let moreComments = async () => {
-            try {
-              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-                await page.waitForSelector("a[class='_4sxc _42ft']");
-                await page.click("a[class='_4sxc _42ft']");
-                await moreComments();
+            let amountComment = await page.$eval(
+              'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
+              value => value.innerHTML.split("/")[0]
+            );
+            // click more comment
+            if (countComment > amountComment) {
+              try {
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
+              } catch (err) {
+                //if err run again
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
               }
-            } catch (err) {
-              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-                await page.waitForSelector("a[class='_4sxc _42ft']");
-                await page.click("a[class='_4sxc _42ft']");
+              //if more cmt or reply is still exist
+              if (
+                (await page.$(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                )) != null
+              ) {
                 await moreComments();
               }
             }
-            if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-              await moreComments();
+
+            if (countComment == amountComment) {
+              if (
+                (await page.$(
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                )) != null
+              ) {
+                try {
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                } catch (err) {
+                  //if err run again
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                }
+              }
+              if (
+                (await page.$(
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                )) != null
+              ) {
+                await moreComments();
+              }
             }
           };
+
           await moreComments();
           await page.waitFor(1000);
           //Get comments and reply
@@ -249,7 +342,6 @@ async function getCommentPost(page, countComment) {
       }
     } else {
       if (countComment > totalComments) {
-        
         return "Khong du comment";
       } else {
         if ((await page.$("div[class='permalinkPost']")) != null) {
@@ -261,7 +353,6 @@ async function getCommentPost(page, countComment) {
             );
             // click more comment
             if (countComment > amountComment) {
-              
               try {
                 if (
                   (await page.$(
@@ -293,7 +384,21 @@ async function getCommentPost(page, countComment) {
                 }
               }
               //if more cmt or reply is still exist
-              if (await page.$('div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]') != null) {
+              if (
+                (await page.$(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                )) != null
+              ) {
+                await moreComments();
+              }
+            }
+
+            if (countComment == amountComment) {
+              if (
+                (await page.$(
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                )) != null
+              ) {
                 try {
                   if (
                     (await page.$(
@@ -325,16 +430,16 @@ async function getCommentPost(page, countComment) {
                   }
                 }
               }
-
               if (
                 (await page.$(
-                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
                 )) != null
               ) {
                 await moreComments();
               }
             }
           };
+
           await moreComments();
           await page.waitFor(1000);
           //Get comments and reply
@@ -344,23 +449,99 @@ async function getCommentPost(page, countComment) {
         //if author is user
         else {
           let moreComments = async () => {
-            try {
-              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-                await page.waitForSelector("a[class='_4sxc _42ft']");
-                await page.click("a[class='_4sxc _42ft']");
-                await moreComments();
+            let amountComment = await page.$eval(
+              'div[class="permalinkPost"] span[class="_3bu3 _293g"]',
+              value => value.innerHTML.split("/")[0]
+            );
+            // click more comment
+            if (countComment > amountComment) {
+              try {
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
+              } catch (err) {
+                //if err run again
+                if (
+                  (await page.$(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  )) != null
+                ) {
+                  await page.waitForSelector(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await page.click(
+                    "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                  );
+                  await moreComments();
+                }
               }
-            } catch (err) {
-              if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-                await page.waitForSelector("a[class='_4sxc _42ft']");
-                await page.click("a[class='_4sxc _42ft']");
+              //if more cmt or reply is still exist
+              if (
+                (await page.$(
+                  "div[class='permalinkPost'] a[class='_4sxc _42ft']"
+                )) != null
+              ) {
                 await moreComments();
               }
             }
-            if ((await page.$("a[class='_4sxc _42ft']")) != null) {
-              await moreComments();
+
+            if (countComment == amountComment) {
+              if (
+                (await page.$(
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                )) != null
+              ) {
+                try {
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                } catch (err) {
+                  //if err run again
+                  if (
+                    (await page.$(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    )) != null
+                  ) {
+                    await page.waitForSelector(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await page.click(
+                      'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                    );
+                    await moreComments();
+                  }
+                }
+              }
+              if (
+                (await page.$(
+                  'div[class="permalinkPost"] a[data-testid="UFI2CommentsPagerRenderer/pager_depth_1"]'
+                )) != null
+              ) {
+                await moreComments();
+              }
             }
           };
+
           await moreComments();
           await page.waitFor(1000);
           //Get comments and reply
@@ -370,7 +551,7 @@ async function getCommentPost(page, countComment) {
       }
     }
   }
-  // if post haven't amount commnet and post
+  // if post haven't amount comment and post
   if (
     (await page.$('div[class="permalinkPost"] span[class="_3bu3 _293g"]')) ==
     null
@@ -477,16 +658,34 @@ async function getCommentOfPostPage(page) {
         "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" + i + ")"
       ) != null
     ) {
+      let cmtIdUser;
       let cmtText;
       let cmtVideo;
       let cmtImage;
       let cmtSticker;
       let reply = [];
+      let cmtStartString;
+      let cmtEndString;
+      let cmtStringId;
       let cmtUser = document.querySelector(
         "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
           i +
           ") div[class='_72vr']>a"
       ).innerText;
+
+      cmtStringId = document.querySelector(
+        "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+          i +
+          ") div[class='_72vr']>a"
+      ).attributes["data-hovercard"].value;
+      cmtStartString = cmtStringId.search(/\d/);
+      cmtEndString = cmtStringId.search(/&/);
+      if (cmtStartString != null) {
+        if (cmtEndString != null) {
+          cmtIdUser = cmtStringId.substring(cmtStartString, cmtEndString);
+        }
+      }
+
       if (
         document.querySelector(
           "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
@@ -560,10 +759,14 @@ async function getCommentOfPostPage(page) {
               ")"
           ) != null
         ) {
+          let replyStringIdUser;
+          let replyIdUser;
           let replyText;
           let replyVideo;
           let replyImage;
           let replySticker;
+          let replyStartString;
+          let replyEndString;
           let replyUser = document.querySelector(
             "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
               i +
@@ -571,6 +774,26 @@ async function getCommentOfPostPage(page) {
               j +
               ") div[class='_72vr']>a"
           ).innerText;
+
+          replyStringIdUser = document.querySelector(
+            "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+              i +
+              ")>div:nth-child(2)>ul>li:nth-child(" +
+              j +
+              ") div[class='_72vr']>a"
+          ).attributes["data-hovercard"].value;
+
+          replyStartString = replyStringIdUser.search(/\d/);
+          replyEndString = replyStringIdUser.search(/&/);
+          if (replyStartString != null) {
+            if (replyEndString != null) {
+              replyIdUser = cmtStringId.substring(
+                replyStartString,
+                replyEndString
+              );
+            }
+          }
+
           if (
             document.querySelector(
               "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
@@ -645,6 +868,7 @@ async function getCommentOfPostPage(page) {
           j++;
           reply.push({
             replyUser,
+            replyIdUser,
             replyText,
             replyVideo,
             replyImage,
@@ -656,6 +880,7 @@ async function getCommentOfPostPage(page) {
       i++;
       comment.push({
         cmtUser,
+        cmtIdUser,
         cmtText,
         cmtVideo,
         cmtImage,
@@ -682,10 +907,28 @@ async function getCommentOfPostUser(page) {
       let cmtVideo;
       let cmtImage;
       let cmtSticker;
+      let cmtStringId;
+      let cmtStartString;
+      let cmtEndString;
+      let cmtIdUser;
       let reply = [];
       let cmtUser = document.querySelector(
         "ul[class='_7791']>li:nth-child(" + i + ") div[class='_72vr']>a"
       ).innerText;
+
+      cmtStringId = document.querySelector(
+        "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+          i +
+          ") div[class='_72vr']>a"
+      ).attributes["data-hovercard"].value;
+      cmtStartString = cmtStringId.search(/\d/);
+      cmtEndString = cmtStringId.search(/&/);
+      if (cmtStartString != null) {
+        if (cmtEndString != null) {
+          cmtIdUser = cmtStringId.substring(cmtStartString, cmtEndString);
+        }
+      }
+
       if (
         document.querySelector(
           "ul[class='_7791']>li:nth-child(" + i + ") video[class='_ox1']"
@@ -748,6 +991,10 @@ async function getCommentOfPostUser(page) {
           let replyVideo;
           let replyImage;
           let replySticker;
+          let replyStringIdUser;
+          let replyStartString;
+          let replyEndString;
+          let replyIdUser;
           let replyUser = document.querySelector(
             "ul[class='_7791']>li:nth-child(" +
               i +
@@ -755,6 +1002,26 @@ async function getCommentOfPostUser(page) {
               j +
               ") div[class='_72vr']>a"
           ).innerText;
+
+          replyStringIdUser = document.querySelector(
+            "div[class='permalinkPost'] ul[class='_7791']>li:nth-child(" +
+              i +
+              ")>div:nth-child(2)>ul>li:nth-child(" +
+              j +
+              ") div[class='_72vr']>a"
+          ).attributes["data-hovercard"].value;
+
+          replyStartString = replyStringIdUser.search(/\d/);
+          replyEndString = replyStringIdUser.search(/&/);
+          if (replyStartString != null) {
+            if (replyEndString != null) {
+              replyIdUser = cmtStringId.substring(
+                replyStartString,
+                replyEndString
+              );
+            }
+          }
+
           if (
             document.querySelector(
               "ul[class='_7791']>li:nth-child(" +
@@ -829,6 +1096,7 @@ async function getCommentOfPostUser(page) {
           j++;
           reply.push({
             replyUser,
+            replyIdUser,
             replyText,
             replyVideo,
             replyImage,
@@ -840,6 +1108,7 @@ async function getCommentOfPostUser(page) {
       i++;
       comment.push({
         cmtUser,
+        cmtIdUser,
         cmtText,
         cmtVideo,
         cmtImage,
@@ -885,7 +1154,7 @@ async function main() {
 
   // await clickCommentPost(page);
   await page.waitFor(500);
-  await getCommentPost(page, 150)
+  await getCommentPost(page, 50)
     .then(data => {
       console.log(data);
     })
